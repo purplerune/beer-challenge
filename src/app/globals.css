@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.oneLine {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  line-height: 21px;
+  max-height: 48px;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
