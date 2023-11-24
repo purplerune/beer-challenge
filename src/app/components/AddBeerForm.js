@@ -1,5 +1,6 @@
 import { Button, TextInput, Modal, Rating, Title } from "@mantine/core";
 import { useState } from "react";
+import { ENDPOINT } from "../utils/constants";
 
 const AddBeerForm = ({ opened, onClose }) => {
   const [beerData, setBeerData] = useState({
@@ -30,7 +31,7 @@ const AddBeerForm = ({ opened, onClose }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Add beer to database
-    fetch("https://656088c983aba11d99d104f6.mockapi.io/beer", {
+    fetch(`${ENDPOINT}/beer`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

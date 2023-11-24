@@ -2,15 +2,14 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { MantineReactTable, useMantineReactTable } from "mantine-react-table";
+import { OLD_ENDPOINT } from "../utils/constants";
 
-//nested data is ok, see accessorKeys in ColumnDef below
-
-const Gusto = () => {
+const TanStackBeerTable = () => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch("https://api.punkapi.com/v2/beers");
+      const res = await fetch(`${OLD_ENDPOINT}/beers`);
       if (!res.ok) {
         throw new Error("Something went wrong");
       }
@@ -56,4 +55,4 @@ const Gusto = () => {
   );
 };
 
-export default Gusto;
+export default TanStackBeerTable;

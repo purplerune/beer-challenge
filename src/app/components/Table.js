@@ -1,106 +1,37 @@
 "use client";
 
-import {
-  Button,
-  Fieldset,
-  Table as MantineTable,
-  Menu,
-  Rating,
-  Modal,
-  TextInput,
-} from "@mantine/core";
+import { Button, Table as MantineTable, Menu, Rating } from "@mantine/core";
 import { IconSortAscending2, IconSortDescending2 } from "@tabler/icons-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import ReactPaginate from "react-paginate";
+import { ENDPOINT } from "../utils/constants";
+import { compareDates } from "../utils/dateHelpers";
 import AddBeerForm from "./AddBeerForm";
+import BeerModal from "./BeerModal";
 
-const compareDates = (d1, d2, sortOrder) => {
-  const date1 = d1.match(/[0-9]{2}\/[0-9]{4}/gi)
-    ? new Date("01/" + d1).getTime()
-    : new Date(d1).getTime();
-  const date2 = d2.match(/[0-9]{2}\/[0-9]{4}/gi)
-    ? new Date("01/" + d2).getTime()
-    : new Date(d2).getTime();
-
-  if (date1 < date2) {
-    return sortOrder === "asc" ? 1 : -1;
-  } else if (date1 > date2) {
-    return sortOrder === "asc" ? -1 : 1;
-  } else {
-    return 0;
-  }
-};
-
-const defaultTableData = {
+const DEFAULT_TABLE_DATA = {
   head: ["Name", "Tagline", "First Brewed", "ABV", "Rating", "Link"],
   body: [],
 };
 
-const BeerModal = ({ opened, onClose, beerId }) => {
-  const [data, setData] = useState(null);
-
-  useEffect(() => {
-    if (!beerId) return;
-
-    const fetchData = async () => {
-      const res = await fetch(
-        `https://656088c983aba11d99d104f6.mockapi.io/beer/${beerId}`
-      );
-      /*       const res = await fetch(`https://api.punkapi.com/v2/beers/${beerId}`); */
-      if (!res.ok) {
-        throw new Error("Something went wrong");
-      }
-
-      const parsedData = await res.json();
-      setData(parsedData);
-    };
-
-    fetchData();
-  }, [beerId]);
-
-  useEffect(() => {
-    if (!opened) setData(null);
-  }, [opened]);
-
-  return (
-    <Modal
-      opened={opened}
-      onClose={onClose}
-      title="Beer Information"
-      size="xl"
-      padding="xl"
-    >
-      <Fieldset legend="General information">
-        <TextInput label="Name" defaultValue={data?.name || ""} />
-        <TextInput label="Tagline" defaultValue={data?.tagline || ""} />
-      </Fieldset>
-    </Modal>
-  );
-};
-
 const ITEMS_PER_PAGE = 10;
 
-export default function Table() {
+const Table = () => {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [opened, setOpened] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
-
   const [beerId, setBeerId] = useState(null);
-
-  // Sorting
+  const [itemOffset, setItemOffset] = useState(0);
+  const [currentItems, setCurrentItems] = useState([]);
   const [sorting, setSorting] = useState({
     name: "asc",
     tagline: "asc",
     first_brewed: "asc",
     abv: "asc",
   });
-
-  // Pagination
-  const [itemOffset, setItemOffset] = useState(0);
   const endOffset = itemOffset + ITEMS_PER_PAGE;
-  const [currentItems, setCurrentItems] = useState([]);
   const pageCount = Math.ceil(data.length / ITEMS_PER_PAGE);
 
   const handleCloseFormModal = () => {
@@ -153,10 +84,7 @@ export default function Table() {
 
   useEffect(() => {
     const fetchData = async () => {
-      /* const res = await fetch("https://api.punkapi.com/v2/beers"); */
-      const res = await fetch(
-        "https://656088c983aba11d99d104f6.mockapi.io/beer"
-      );
+      const res = await fetch(`${ENDPOINT}/beer`);
       if (!res.ok) {
         throw new Error("Something went wrong");
       }
@@ -169,10 +97,10 @@ export default function Table() {
   }, []);
 
   const tableData = useMemo(() => {
-    if (!data || data.length === 0) return defaultTableData;
+    if (!data || data.length === 0) return DEFAULT_TABLE_DATA;
 
     return {
-      ...defaultTableData,
+      ...DEFAULT_TABLE_DATA,
 
       head: [
         <div
@@ -317,7 +245,16 @@ export default function Table() {
           onChange={() => setSearch(event.target.value)}
           placeholder="Search here..."
         />
-        <Button onClick={handleOpenFormBeer}>Add a beer</Button>
+        <div>
+          <Button onClick={handleOpenFormBeer} className="mr-2">
+            Add a beer
+          </Button>
+          <Link href="/tanstack-beer-table">
+            <Button variant="outline" color="yellow">
+              See Tanstack version
+            </Button>
+          </Link>
+        </div>
       </div>
       <MantineTable
         data={tableData}
@@ -345,4 +282,6 @@ export default function Table() {
       <BeerModal opened={opened} onClose={onClose} beerId={beerId} />
     </div>
   );
-}
+};
+
+export default Table;

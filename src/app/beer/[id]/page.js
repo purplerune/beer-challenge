@@ -25,7 +25,9 @@ export default function Page({ params }) {
     const fetchData = async () => {
       setLoading(true);
       // const res = await fetch(`https://api.punkapi.com/v2/beers/${params.id}`);
-      const res = await fetch(`https://656088c983aba11d99d104f6.mockapi.io/beer/${params.id}`)
+      const res = await fetch(
+        `https://656088c983aba11d99d104f6.mockapi.io/beer/${params.id}`
+      );
       if (!res.ok) {
         setLoading(false);
         throw new Error("Something went wrong");
@@ -76,11 +78,11 @@ export default function Page({ params }) {
           label="First Brewed"
           defaultValue={data?.first_brewed || ""}
         />
-        <TextInput
+{/*         <TextInput
           variant="filled"
           label="Brewer Tip"
           defaultValue={data?.brewers_tips || ""}
-        />
+        /> */}
         <Group justify="flex-start">
           <Input.Wrapper label="ABV">
             <Input
@@ -94,20 +96,12 @@ export default function Page({ params }) {
               leftSection={<ChartInfographic size={16} />}
             />
           </Input.Wrapper>
-          <Input.Wrapper label="Boil Volume">
-            <Input
-              value={boilVolume}
-              onChange={(event) => console.log(event.target.value)}
-              disabled
-              leftSection={<Flask size={16} />}
-            />
-          </Input.Wrapper>
-          <Input.Wrapper label="EBC">
+          {/*           <Input.Wrapper label="EBC">
             <Input
               defaultValue={data?.ebc || ""}
               leftSection={<TargetArrow size={16} />}
             />
-          </Input.Wrapper>
+          </Input.Wrapper> */}
         </Group>
         <Group justify="flex-start">
           <Input.Wrapper label="IBU">
@@ -122,21 +116,21 @@ export default function Page({ params }) {
               leftSection={<Bottle size={16} />}
             />
           </Input.Wrapper>
-          <Input.Wrapper label="SRM">
+          {/*           <Input.Wrapper label="SRM">
             <Input
               defaultValue={data?.srm || ""}
               leftSection={<Flask size={16} />}
             />
-          </Input.Wrapper>
+          </Input.Wrapper> */}
         </Group>
-        <Title size="h2">Food Pairing:</Title>
-        {data && (
+     {/*    <Title size="h2">Food Pairing:</Title> */}
+        {/*         {data && (
           <List size="sm" withPadding>
             {data?.food_pairing?.map((item, index) => (
               <List.Item key={index}>{item}</List.Item>
             ))}
           </List>
-        )}
+        )} */}
       </Fieldset>
     </div>
   );
