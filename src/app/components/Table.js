@@ -5,6 +5,7 @@ import {
   Fieldset,
   Table as MantineTable,
   Menu,
+  Rating,
   Modal,
   TextInput,
 } from "@mantine/core";
@@ -15,9 +16,12 @@ import ReactPaginate from "react-paginate";
 import AddBeerForm from "./AddBeerForm";
 
 const compareDates = (d1, d2, sortOrder) => {
-
-  const date1 = d1.match(/[0-9]{2}\/[0-9]{4}/ig) ? new Date("01/" + d1).getTime() : new Date(d1).getTime()
-  const date2 = d2.match(/[0-9]{2}\/[0-9]{4}/ig) ? new Date("01/" + d2).getTime() : new Date(d2).getTime()
+  const date1 = d1.match(/[0-9]{2}\/[0-9]{4}/gi)
+    ? new Date("01/" + d1).getTime()
+    : new Date(d1).getTime();
+  const date2 = d2.match(/[0-9]{2}\/[0-9]{4}/gi)
+    ? new Date("01/" + d2).getTime()
+    : new Date(d2).getTime();
 
   if (date1 < date2) {
     return sortOrder === "asc" ? 1 : -1;
@@ -29,7 +33,7 @@ const compareDates = (d1, d2, sortOrder) => {
 };
 
 const defaultTableData = {
-  head: ["Name", "Tagline", "First Brewed", "ABV", "Link"],
+  head: ["Name", "Tagline", "First Brewed", "ABV", "Rating", "Link"],
   body: [],
 };
 
@@ -40,8 +44,10 @@ const BeerModal = ({ opened, onClose, beerId }) => {
     if (!beerId) return;
 
     const fetchData = async () => {
-      const res = await fetch(`https://656088c983aba11d99d104f6.mockapi.io/beer/${beerId}`);
-/*       const res = await fetch(`https://api.punkapi.com/v2/beers/${beerId}`); */
+      const res = await fetch(
+        `https://656088c983aba11d99d104f6.mockapi.io/beer/${beerId}`
+      );
+      /*       const res = await fetch(`https://api.punkapi.com/v2/beers/${beerId}`); */
       if (!res.ok) {
         throw new Error("Something went wrong");
       }
@@ -79,6 +85,8 @@ export default function Table() {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [opened, setOpened] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+
   const [beerId, setBeerId] = useState(null);
 
   // Sorting
@@ -94,6 +102,10 @@ export default function Table() {
   const endOffset = itemOffset + ITEMS_PER_PAGE;
   const [currentItems, setCurrentItems] = useState([]);
   const pageCount = Math.ceil(data.length / ITEMS_PER_PAGE);
+
+  const handleCloseFormModal = () => {
+    setFormOpen(false);
+  };
 
   useEffect(() => {
     setCurrentItems(
@@ -128,6 +140,9 @@ export default function Table() {
     setItemOffset(newOffset);
   };
 
+  //to avoid anonymous functions in order to improve performance
+  const handleOpenFormBeer = () => setFormOpen(true);
+
   const handleChangeSorting = (column) => {
     setSorting((currVal) => ({
       ...Object.fromEntries(Object.keys(currVal).map((key) => [key, ""])),
@@ -139,7 +154,9 @@ export default function Table() {
   useEffect(() => {
     const fetchData = async () => {
       /* const res = await fetch("https://api.punkapi.com/v2/beers"); */
-      const res = await fetch("https://656088c983aba11d99d104f6.mockapi.io/beer")
+      const res = await fetch(
+        "https://656088c983aba11d99d104f6.mockapi.io/beer"
+      );
       if (!res.ok) {
         throw new Error("Something went wrong");
       }
@@ -160,7 +177,7 @@ export default function Table() {
       head: [
         <div
           key="name"
-          className="flex flex-row mr-1 items-center justify-between	"
+          className="flex flex-row mr-1 items-center justify-between"
           onClick={() => handleChangeSorting("name")}
         >
           Name
@@ -178,7 +195,7 @@ export default function Table() {
         </div>,
         <div
           key="Tagline"
-          className="flex flex-row mr-1 items-center justify-between	"
+          className="flex flex-row mr-1 items-center justify-between"
           onClick={() => handleChangeSorting("tagline")}
         >
           Tagline
@@ -196,7 +213,7 @@ export default function Table() {
         </div>,
         <div
           key="first_brewed"
-          className="flex flex-row mr-1 items-center justify-between	whitespace-nowrap		"
+          className="flex flex-row mr-1 items-center justify-betweenwhitespace-nowrap"
           onClick={() => handleChangeSorting("first_brewed")}
         >
           First Brewed
@@ -214,7 +231,7 @@ export default function Table() {
         </div>,
         <div
           key="abv"
-          className="flex flex-row mr-1 items-center justify-between	"
+          className="flex flex-row mr-1 items-center justify-between"
           onClick={() => handleChangeSorting("abv")}
         >
           ABV
@@ -230,6 +247,7 @@ export default function Table() {
             />
           )}
         </div>,
+        "Rating",
         "Link",
       ],
       body: currentItems
@@ -244,17 +262,19 @@ export default function Table() {
             {beer.tagline}
           </div>,
           <div key={beer.id} className="oneLine">
-            {
-              beer.first_brewed.match(/[0-9]{2}\/[0-9]{4}/ig) ?  beer.first_brewed :  new Intl.DateTimeFormat('en-US', {
-              month: '2-digit',
-              day: '2-digit',
-              year: 'numeric'
-              }).format(new Date(beer.first_brewed)) 
-            }
+            {beer.first_brewed.match(/[0-9]{2}\/[0-9]{4}/gi)
+              ? beer.first_brewed
+              : new Intl.DateTimeFormat("en-US", {
+                  month: "2-digit",
+                  day: "2-digit",
+                  year: "numeric",
+                }).format(new Date(beer.first_brewed))}
           </div>,
           <div key={beer.id} className="oneLine">
             {beer.abv}
           </div>,
+
+          <Rating key={beer?.id} value={beer?.rating} readOnly />,
           <>
             <Menu>
               <Menu.Target>
@@ -287,15 +307,18 @@ export default function Table() {
     sorting.abv,
   ]);
 
-
   return (
     <div className="w-full">
-      <AddBeerForm/>
-      <input
-        value={search}
-        onChange={() => setSearch(event.target.value)}
-        placeholder="Search here..."
-      />
+      <AddBeerForm opened={formOpen} onClose={handleCloseFormModal} />
+      <div className="flex flex-row justify-between items-center mb-4">
+        <input
+          className="mt-1 rounded-md border border-solid border-black shadow-sm sm:text-sm"
+          value={search}
+          onChange={() => setSearch(event.target.value)}
+          placeholder="Search here..."
+        />
+        <Button onClick={handleOpenFormBeer}>Add a beer</Button>
+      </div>
       <MantineTable
         data={tableData}
         striped

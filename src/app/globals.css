@@ -11,3 +11,12 @@
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
 }
+
+.ratingLabel {
+  -webkit-tap-highlight-color: transparent;
+  cursor: default;
+  display: inline-block;
+  font-weight: 500;
+  word-break: break-word;
+  margin-top:5px;
+}

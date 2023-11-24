@@ -1,12 +1,15 @@
-import { Button, TextInput } from "@mantine/core";
+import { Button, TextInput, Modal, Rating, Title } from "@mantine/core";
 import { useState } from "react";
 
-const AddBeerForm = () => {
+const AddBeerForm = ({ opened, onClose }) => {
   const [beerData, setBeerData] = useState({
     name: "",
     tagline: "",
     first_brewed: "",
     abv: "",
+    rating: 0,
+    comment: "",
+    note: "",
   });
 
   const handleChange = (e) => {
@@ -17,37 +20,55 @@ const AddBeerForm = () => {
     }));
   };
 
+  const handleChangeRating = (value) => {
+    setBeerData((prevData) => ({
+      ...prevData,
+      rating: value,
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-
     // Add beer to database
-  
-    const res = fetch("https://656088c983aba11d99d104f6.mockapi.io/beer", {
-      method: 'POST',
+    fetch("https://656088c983aba11d99d104f6.mockapi.io/beer", {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(beerData)
-    }).then(async (res) => {
-      console.log('Beer added!', await res.json());
-      setBeerData({
-        name: "",
-        tagline: "",
-        first_brewed: "",
-        abv: "",
-      });
-    }).catch((err ) => {
-      alert('There was an error trying to add the beer. Please try again!')
+      body: JSON.stringify(beerData),
     })
-    
+      .then(async () => {
+        setBeerData({
+          name: "",
+          tagline: "",
+          first_brewed: "",
+          abv: "",
+          rating: 0,
+          comment: "",
+          note: "",
+        });
 
-    
-
+        setTimeout(() => {
+          alert("Beer added!");
+          onClose();
+        }, 200);
+      })
+      .catch((err) => {
+        alert(
+          "There was an error trying to add the beer. Please try again!",
+          err
+        );
+      });
   };
 
   return (
-    <div>
-      <Button onClick={handleSubmit}>Add Beer</Button>
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title="Add a Beer"
+      size="xl"
+      padding="md"
+    >
       <TextInput
         name="name"
         label="Name"
@@ -63,6 +84,7 @@ const AddBeerForm = () => {
       <TextInput
         name="first_brewed"
         label="First Brewed"
+        type="date"
         value={beerData.first_brewed}
         onChange={handleChange}
       />
@@ -72,7 +94,28 @@ const AddBeerForm = () => {
         value={beerData.abv}
         onChange={handleChange}
       />
-    </div>
+      <hr />
+      <div className="items-center flex flex-col">
+        <label>Rating</label>
+        <Rating value={beerData.rating} onChange={handleChangeRating} />
+      </div>
+      <TextInput
+        name="comment"
+        label="Comment"
+        value={beerData.comment}
+        onChange={handleChange}
+      />
+      <TextInput
+        name="note"
+        label="Note"
+        type="textarea"
+        value={beerData.note}
+        onChange={handleChange}
+      />
+      <Button className="mt-4" onClick={handleSubmit}>
+        Add Beer
+      </Button>
+    </Modal>
   );
 };
 
